@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Katüs Adam 2</title>
+    <title>Cactus McCoy 2</title>
     <style>
         body {
             margin: 0;
@@ -73,22 +73,22 @@
 <body>
 
     <div id="ui-layer">
-        <h1>KATÜS ADAM 2</h1>
-        <div id="scoreBoard">Skor: 0</div>
+        <h1>CACTUS MCCOY 2</h1>
+        <div id="scoreBoard">Score: 0</div>
     </div>
 
     <canvas id="gameCanvas" width="800" height="400"></canvas>
 
     <div id="startScreen">
-        <h2>Maceraya Hazır mısın?</h2>
-        <p>Zıplamak için BOŞLUK (Space) tuşuna veya ekrana tıkla!</p>
-        <button onclick="startGame()">Oyunu Başlat</button>
+        <h2>Are You Ready for Adventure?</h2>
+        <p>Press SPACE or click the screen to jump!</p>
+        <button onclick="startGame()">Start Game</button>
     </div>
 
     <div id="gameOverScreen" class="hidden">
-        <h2>Oyun Bitti!</h2>
-        <p>Skorun: <span id="finalScore">0</span></p>
-        <button onclick="resetGame()">Tekrar Oyna</button>
+        <h2>Game Over!</h2>
+        <p>Your Score: <span id="finalScore">0</span></p>
+        <button onclick="resetGame()">Play Again</button>
     </div>
 
     <script>
@@ -243,7 +243,7 @@
             score = 0;
             gameSpeed = 5;
             frameCount = 0;
-            scoreEl.innerText = 'Skor: ' + score;
+            scoreEl.innerText = 'Score: ' + score;
         }
 
         function gameOver() {
@@ -314,13 +314,13 @@
                     obstacles.splice(i, 1);
                     i--;
                     score += 10;
-                    scoreEl.innerText = 'Skor: ' + score;
+                    scoreEl.innerText = 'Score: ' + score;
                 }
             }
 
             // Skor artışı (hayatta kaldıkça)
             score += 0.05;
-            scoreEl.innerText = 'Skor: ' + Math.floor(score);
+            scoreEl.innerText = 'Score: ' + Math.floor(score);
 
             requestAnimationFrame(gameLoop);
         }
