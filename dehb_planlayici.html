@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEHB Dostu Günlük Planlayıcı</title>
+    <style>
+        :root {
+            --bg-color: #fdf6e3;
+            --text-color: #657b83;
+            --accent-color: #268bd2;
+            --highlight-color: #859900;
+            --urgent-color: #dc322f;
+            --card-bg: #eee8d5;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Brain Dump Section */
+        .brain-dump {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: var(--accent-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+        }
+
+        .brain-dump textarea {
+            width: 100%;
+            height: 300px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            box-sizing: border-box; /* Fix overflow */
+        }
+
+        .brain-dump p {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        /* Schedule Section */
+        .schedule {
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .time-block {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            transition: background 0.3s;
+        }
+
+        .time-block.current-hour {
+            background-color: rgba(133, 153, 0, 0.1);
+            border-left: 5px solid var(--highlight-color);
+            padding-left: 10px; /* Offset for border */
+        }
+
+        .time-label {
+            font-weight: bold;
+            width: 60px;
+            font-size: 1.1em;
+            color: var(--accent-color);
+        }
+
+        .task-input {
+            flex-grow: 1;
+            border: 1px solid transparent;
+            background: transparent;
+            padding: 8px;
+            font-size: 1rem;
+            border-radius: 5px;
+        }
+
+        .task-input:focus {
+            background: #fdf6e3;
+            border: 1px solid var(--accent-color);
+            outline: none;
+        }
+
+        .check-btn {
+            background: none;
+            border: 2px solid #ccc;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: transparent;
+            transition: all 0.2s;
+        }
+
+        .time-block.completed .check-btn {
+            background-color: var(--highlight-color);
+            border-color: var(--highlight-color);
+            color: white;
+        }
+
+        .time-block.completed .task-input {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.1s;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .btn-reset {
+            background-color: var(--urgent-color);
+            color: white;
+        }
+
+        .btn-save {
+            background-color: var(--highlight-color);
+            color: white;
+            display: none; /* Auto-save is used, but kept for manual override if needed */
+        }
+
+        #notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--highlight-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Sidebar: Brain Dump -->
+    <div class="brain-dump">
+        <h2>🧠 Zihin Boşaltma</h2>
+        <p>Aklına gelen her şeyi buraya yaz. Sonra sağ taraftaki saatlere yerleştir.</p>
+        <textarea id="brainDumpArea" placeholder="- Köpeği gezdir&#10;- Faturaları öde&#10;- Projeye başla..."></textarea>
+    </div>
+
+    <!-- Main: Schedule -->
+    <div class="schedule">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2>📅 Bugünün Akışı</h2>
+            <div id="clock" style="font-weight:bold; color:var(--text-color)">00:00</div>
+        </div>
+
+        <div id="scheduleList">
+            <!-- Time blocks generated by JS -->
+        </div>
+
+        <div class="controls">
+            <button class="btn-reset" onclick="resetDay()">🗑️ Temizle / Yeni Gün</button>
+        </div>
+    </div>
+</div>
+
+<div id="notification">Kaydedildi!</div>
+
+<script>
+    const scheduleList = document.getElementById('scheduleList');
+    const brainDumpArea = document.getElementById('brainDumpArea');
+    const startHour = 7; // Start at 7 AM
+    const endHour = 24;  // End at Midnight
+
+    // Initialize
+    function init() {
+        renderSchedule();
+        loadData();
+        updateTimeHighlight();
+        setInterval(updateTimeHighlight, 60000); // Check every minute
+        setInterval(updateClock, 1000);
+    }
+
+    function renderSchedule() {
+        scheduleList.innerHTML = '';
+        for (let i = startHour; i <= endHour; i++) {
+            const hour = i < 10 ? '0' + i : i;
+            const timeLabel = `${hour}:00`;
+
+            const div = document.createElement('div');
+            div.className = 'time-block';
+            div.dataset.hour = i;
+
+            div.innerHTML = `
+                <div class="time-label">${timeLabel}</div>
+                <input type="text" class="task-input" placeholder="..." oninput="saveData()">
+                <button class="check-btn" onclick="toggleComplete(this)">✓</button>
+            `;
+            scheduleList.appendChild(div);
+        }
+    }
+
+    function toggleComplete(btn) {
+        const row = btn.parentElement;
+        row.classList.toggle('completed');
+        saveData();
+    }
+
+    function updateTimeHighlight() {
+        const now = new Date();
+        const currentHour = now.getHours();
+        const blocks = document.querySelectorAll('.time-block');
+
+        blocks.forEach(block => {
+            block.classList.remove('current-hour');
+            if (parseInt(block.dataset.hour) === currentHour) {
+                block.classList.add('current-hour');
+                // Optional: Scroll to current hour on load?
+                // block.scrollIntoView({behavior: "smooth", block: "center"});
+            }
+        });
+    }
+
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('clock').innerText = now.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
+    }
+
+    function saveData() {
+        // Save Brain Dump
+        localStorage.setItem('dehb_brain_dump', brainDumpArea.value);
+
+        // Save Schedule
+        const tasks = [];
+        const blocks = document.querySelectorAll('.time-block');
+        blocks.forEach(block => {
+            tasks.push({
+                hour: block.dataset.hour,
+                text: block.querySelector('.task-input').value,
+                completed: block.classList.contains('completed')
+            });
+        });
+        localStorage.setItem('dehb_schedule', JSON.stringify(tasks));
+
+        // Visual feedback (subtle)
+        // showNotification();
+    }
+
+    function loadData() {
+        // Load Brain Dump
+        const savedDump = localStorage.getItem('dehb_brain_dump');
+        if (savedDump) {
+            brainDumpArea.value = savedDump;
+        }
+
+        // Load Schedule
+        const savedSchedule = JSON.parse(localStorage.getItem('dehb_schedule'));
+        if (savedSchedule) {
+            const blocks = document.querySelectorAll('.time-block');
+            savedSchedule.forEach((item, index) => {
+                if (blocks[index]) {
+                    blocks[index].querySelector('.task-input').value = item.text;
+                    if (item.completed) {
+                        blocks[index].classList.add('completed');
+                    }
+                }
+            });
+        }
+    }
+
+    function resetDay() {
+        if(confirm("Tüm planı silmek istediğine emin misin?")) {
+            brainDumpArea.value = "";
+            const blocks = document.querySelectorAll('.time-block');
+            blocks.forEach(block => {
+                block.querySelector('.task-input').value = "";
+                block.classList.remove('completed');
+            });
+            saveData();
+        }
+    }
+
+    // Auto-save logic for brain dump area
+    brainDumpArea.addEventListener('input', saveData);
+
+    init();
+</script>
+
+</body>
+</html>
