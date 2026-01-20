@@ -3,188 +3,276 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEHB Dostu Günlük Planlayıcı</title>
+    <title>Profesyonel Günlük Planlayıcı</title>
     <style>
         :root {
-            --bg-color: #fdf6e3;
-            --text-color: #657b83;
-            --accent-color: #268bd2;
-            --highlight-color: #859900;
-            --urgent-color: #dc322f;
-            --card-bg: #eee8d5;
-            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --success-color: #10b981;
+            --highlight-bg: #eff6ff;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background-color: var(--bg-color);
-            color: var(--text-color);
+            color: var(--text-main);
             margin: 0;
-            padding: 20px;
+            padding: 40px 20px;
             display: flex;
             justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
 
         .container {
             display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 20px;
-            max-width: 1000px;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+            max-width: 1200px;
             width: 100%;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 850px) {
             .container {
                 grid-template-columns: 1fr;
             }
         }
 
-        /* Brain Dump Section */
-        .brain-dump {
+        /* Card Styles */
+        .card {
             background: var(--card-bg);
-            padding: 20px;
-            border-radius: 15px;
+            border-radius: var(--radius);
             box-shadow: var(--shadow);
-            height: fit-content;
-            position: sticky;
-            top: 20px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
         }
 
         h2 {
             margin-top: 0;
-            color: var(--accent-color);
-            border-bottom: 2px solid var(--accent-color);
-            padding-bottom: 10px;
+            font-size: 1.5rem;
+            color: var(--text-main);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Brain Dump */
+        .brain-dump-wrapper {
+            position: sticky;
+            top: 40px;
+            height: fit-content;
         }
 
         .brain-dump textarea {
             width: 100%;
-            height: 300px;
-            border: 2px solid #ccc;
-            border-radius: 10px;
-            padding: 10px;
+            min-height: 400px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
             font-family: inherit;
             font-size: 1rem;
             resize: vertical;
-            box-sizing: border-box; /* Fix overflow */
+            box-sizing: border-box;
+            background: #f9fafb;
+            transition: border-color 0.2s;
+        }
+
+        .brain-dump textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: #fff;
         }
 
         .brain-dump p {
-            font-size: 0.9em;
-            opacity: 0.8;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            line-height: 1.5;
         }
 
-        /* Schedule Section */
-        .schedule {
-            background: #fff;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: var(--shadow);
+        /* Schedule */
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .current-time {
+            background: var(--highlight-bg);
+            color: var(--primary-color);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .progress-container {
+            margin-bottom: 20px;
+            background: var(--border-color);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--success-color);
+            width: 0%;
+            transition: width 0.5s ease;
         }
 
         .time-block {
             display: flex;
             align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-            transition: background 0.3s;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
         }
 
-        .time-block.current-hour {
-            background-color: rgba(133, 153, 0, 0.1);
-            border-left: 5px solid var(--highlight-color);
-            padding-left: 10px; /* Offset for border */
+        .time-block:last-child {
+            border-bottom: none;
+        }
+
+        .time-block.active {
+            background: var(--highlight-bg);
+            border-left: 4px solid var(--primary-color);
+            padding-left: 10px; /* offset for border */
+            margin-left: -14px; /* pull back to align */
+            padding-right: 10px;
+            border-radius: 0 6px 6px 0;
         }
 
         .time-label {
-            font-weight: bold;
-            width: 60px;
-            font-size: 1.1em;
-            color: var(--accent-color);
+            width: 70px;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 1rem;
         }
 
         .task-input {
             flex-grow: 1;
-            border: 1px solid transparent;
+            border: none;
             background: transparent;
-            padding: 8px;
             font-size: 1rem;
-            border-radius: 5px;
+            color: var(--text-main);
+            padding: 8px;
+            margin-right: 10px;
+            border-radius: 4px;
         }
 
         .task-input:focus {
-            background: #fdf6e3;
-            border: 1px solid var(--accent-color);
-            outline: none;
+            outline: 2px solid var(--primary-color);
+            background: white;
         }
 
         .check-btn {
-            background: none;
-            border: 2px solid #ccc;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            width: 25px;
-            height: 25px;
+            border: 2px solid var(--border-color);
+            background: white;
             cursor: pointer;
-            margin-left: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: transparent;
+            color: white;
             transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .check-btn:hover {
+            border-color: var(--success-color);
         }
 
         .time-block.completed .check-btn {
-            background-color: var(--highlight-color);
-            border-color: var(--highlight-color);
-            color: white;
+            background: var(--success-color);
+            border-color: var(--success-color);
         }
 
         .time-block.completed .task-input {
             text-decoration: line-through;
-            opacity: 0.6;
+            color: var(--text-muted);
         }
 
-        .controls {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        button {
+        /* Buttons */
+        .btn {
             padding: 10px 20px;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
-            transition: transform 0.1s;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        button:active {
-            transform: scale(0.95);
-        }
-
-        .btn-reset {
-            background-color: var(--urgent-color);
+        .btn-primary {
+            background-color: var(--success-color); /* Excel Green */
             color: white;
         }
 
-        .btn-save {
-            background-color: var(--highlight-color);
-            color: white;
-            display: none; /* Auto-save is used, but kept for manual override if needed */
+        .btn-primary:hover {
+            background-color: #059669;
         }
 
-        #notification {
+        .btn-danger {
+            background-color: transparent;
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        .btn-danger:hover {
+            background-color: #fef2f2;
+        }
+
+        .footer-controls {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Icons */
+        .icon {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        /* Notification */
+        .toast {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--highlight-color);
+            bottom: 30px;
+            right: 30px;
+            background: var(--text-main);
             color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: translateY(100px);
             opacity: 0;
-            transition: opacity 0.5s;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
         }
 
     </style>
@@ -193,43 +281,63 @@
 
 <div class="container">
     <!-- Sidebar: Brain Dump -->
-    <div class="brain-dump">
-        <h2>🧠 Zihin Boşaltma</h2>
-        <p>Aklına gelen her şeyi buraya yaz. Sonra sağ taraftaki saatlere yerleştir.</p>
-        <textarea id="brainDumpArea" placeholder="- Köpeği gezdir&#10;- Faturaları öde&#10;- Projeye başla..."></textarea>
+    <div class="brain-dump-wrapper">
+        <div class="card brain-dump">
+            <h2>
+                <span>🧠 Zihin Kutusu</span>
+            </h2>
+            <p>Kafandaki her şeyi buraya dök. Planlamanı yaparken buradan taşıyabilirsin.</p>
+            <textarea id="brainDumpArea" placeholder="• Faturayı öde&#10;• Doktordan randevu al&#10;• Proje taslağını hazırla..."></textarea>
+        </div>
     </div>
 
     <!-- Main: Schedule -->
-    <div class="schedule">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2>📅 Bugünün Akışı</h2>
-            <div id="clock" style="font-weight:bold; color:var(--text-color)">00:00</div>
+    <div class="card schedule">
+        <h2>
+            <span>📅 Günlük Akış</span>
+            <div class="header-actions">
+                <div id="clock" class="current-time">00:00</div>
+            </div>
+        </h2>
+
+        <!-- Progress Bar -->
+        <div class="progress-container" title="Günlük Tamamlanma Oranı">
+            <div id="progressBar" class="progress-bar"></div>
         </div>
 
         <div id="scheduleList">
             <!-- Time blocks generated by JS -->
         </div>
 
-        <div class="controls">
-            <button class="btn-reset" onclick="resetDay()">🗑️ Temizle / Yeni Gün</button>
+        <div class="footer-controls">
+            <button class="btn btn-danger" onclick="resetDay()">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                Günü Sıfırla
+            </button>
+            <button class="btn btn-primary" onclick="exportToExcel()">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                Excel'e Aktar
+            </button>
         </div>
     </div>
 </div>
 
-<div id="notification">Kaydedildi!</div>
+<div id="toast" class="toast">İşlem Başarılı</div>
 
 <script>
     const scheduleList = document.getElementById('scheduleList');
     const brainDumpArea = document.getElementById('brainDumpArea');
-    const startHour = 7; // Start at 7 AM
-    const endHour = 24;  // End at Midnight
+    const progressBar = document.getElementById('progressBar');
+    const startHour = 6;
+    const endHour = 24;
 
     // Initialize
     function init() {
         renderSchedule();
         loadData();
         updateTimeHighlight();
-        setInterval(updateTimeHighlight, 60000); // Check every minute
+        updateProgress();
+        setInterval(updateTimeHighlight, 60000);
         setInterval(updateClock, 1000);
     }
 
@@ -237,7 +345,9 @@
         scheduleList.innerHTML = '';
         for (let i = startHour; i <= endHour; i++) {
             const hour = i < 10 ? '0' + i : i;
-            const timeLabel = `${hour}:00`;
+            // Handle 24 as 00 for display if needed, but keeping it linear for now
+            const displayHour = i === 24 ? '00' : hour;
+            const timeLabel = `${displayHour}:00`;
 
             const div = document.createElement('div');
             div.className = 'time-block';
@@ -245,8 +355,10 @@
 
             div.innerHTML = `
                 <div class="time-label">${timeLabel}</div>
-                <input type="text" class="task-input" placeholder="..." oninput="saveData()">
-                <button class="check-btn" onclick="toggleComplete(this)">✓</button>
+                <input type="text" class="task-input" placeholder="" oninput="saveData()">
+                <button class="check-btn" onclick="toggleComplete(this)">
+                    <svg style="width:16px;height:16px;fill:white" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                </button>
             `;
             scheduleList.appendChild(div);
         }
@@ -256,6 +368,20 @@
         const row = btn.parentElement;
         row.classList.toggle('completed');
         saveData();
+        updateProgress();
+    }
+
+    function updateProgress() {
+        const total = document.querySelectorAll('.time-block input').length;
+        // Count tasks that have text OR are completed (user might check empty tasks to block time)
+        // Or simply count completed tasks
+        const completed = document.querySelectorAll('.time-block.completed').length;
+
+        // Better metric: Count tasks that have input.
+        // Actually, completion bar should just reflect checked items vs total hours (or total filled items)
+        // Let's do: Completed / Total Hours (simple)
+        const percent = (completed / (endHour - startHour + 1)) * 100;
+        progressBar.style.width = `${percent}%`;
     }
 
     function updateTimeHighlight() {
@@ -264,11 +390,13 @@
         const blocks = document.querySelectorAll('.time-block');
 
         blocks.forEach(block => {
-            block.classList.remove('current-hour');
-            if (parseInt(block.dataset.hour) === currentHour) {
-                block.classList.add('current-hour');
-                // Optional: Scroll to current hour on load?
-                // block.scrollIntoView({behavior: "smooth", block: "center"});
+            block.classList.remove('active');
+            let blockHour = parseInt(block.dataset.hour);
+            // Handle midnight mapping if user works late
+            if (blockHour === 24 && currentHour === 0) {
+                 block.classList.add('active');
+            } else if (blockHour === currentHour) {
+                block.classList.add('active');
             }
         });
     }
@@ -278,11 +406,16 @@
         document.getElementById('clock').innerText = now.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
     }
 
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.innerText = message;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
     function saveData() {
-        // Save Brain Dump
         localStorage.setItem('dehb_brain_dump', brainDumpArea.value);
 
-        // Save Schedule
         const tasks = [];
         const blocks = document.querySelectorAll('.time-block');
         blocks.forEach(block => {
@@ -293,19 +426,12 @@
             });
         });
         localStorage.setItem('dehb_schedule', JSON.stringify(tasks));
-
-        // Visual feedback (subtle)
-        // showNotification();
     }
 
     function loadData() {
-        // Load Brain Dump
         const savedDump = localStorage.getItem('dehb_brain_dump');
-        if (savedDump) {
-            brainDumpArea.value = savedDump;
-        }
+        if (savedDump) brainDumpArea.value = savedDump;
 
-        // Load Schedule
         const savedSchedule = JSON.parse(localStorage.getItem('dehb_schedule'));
         if (savedSchedule) {
             const blocks = document.querySelectorAll('.time-block');
@@ -321,7 +447,7 @@
     }
 
     function resetDay() {
-        if(confirm("Tüm planı silmek istediğine emin misin?")) {
+        if(confirm("Tüm plan silinecek. Emin misin?")) {
             brainDumpArea.value = "";
             const blocks = document.querySelectorAll('.time-block');
             blocks.forEach(block => {
@@ -329,10 +455,55 @@
                 block.classList.remove('completed');
             });
             saveData();
+            updateProgress();
+            showToast("Gün sıfırlandı.");
         }
     }
 
-    // Auto-save logic for brain dump area
+    function exportToExcel() {
+        const date = new Date().toLocaleDateString('tr-TR');
+        let csvContent = "\ufeff"; // BOM for UTF-8 in Excel
+
+        // Add Header
+        csvContent += `Tarih: ${date}\n\n`;
+
+        // Add Brain Dump
+        csvContent += "ZİHİN KUTUSU\n";
+        // Quote the content to handle newlines within the brain dump
+        const dump = brainDumpArea.value.replace(/"/g, '""');
+        csvContent += `"${dump}"\n\n`;
+
+        // Add Schedule
+        csvContent += "SAAT;GÖREV;DURUM\n"; // Using ; as delimiter which is common for Excel in some locales, or ,
+        // Actually, let's use tab or semicolon. Excel usually likes semicolon in regions like Turkey/Europe.
+        // Or stick to standard comma and rely on Excel import.
+        // Let's use semicolon (;) as it's safer for Turkish Excel defaults.
+
+        const delimiter = ";";
+
+        const blocks = document.querySelectorAll('.time-block');
+        blocks.forEach(block => {
+            const time = block.querySelector('.time-label').innerText;
+            const text = block.querySelector('.task-input').value.replace(/"/g, '""');
+            const status = block.classList.contains('completed') ? "Tamamlandı" : "Bekliyor";
+
+            csvContent += `${time}${delimiter}"${text}"${delimiter}${status}\n`;
+        });
+
+        // Create download link
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `Gunluk_Plan_${date}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        showToast("Excel dosyası indirildi.");
+    }
+
+    // Auto-save listeners
     brainDumpArea.addEventListener('input', saveData);
 
     init();
